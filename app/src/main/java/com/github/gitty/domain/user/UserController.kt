@@ -1,4 +1,4 @@
-package com.github.gitty.domain
+package com.github.gitty.domain.user
 
 import kotlinx.coroutines.flow.StateFlow
 

@@ -1,14 +1,13 @@
 package com.github.gitty.ui.activity
 
+import androidx.lifecycle.viewModelScope
 import com.github.gitty.di.IoDispatcher
-import com.github.gitty.domain.UserController
-import com.github.gitty.domain.UserControllerImpl
+import com.github.gitty.domain.user.UserController
 import com.github.gitty.domain.usecase.RequestAccessTokenUseCase
 import com.github.gitty.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -16,16 +15,19 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val requestAccessTokenUseCase: RequestAccessTokenUseCase
-): BaseViewModel() {
+) : BaseViewModel() {
 
     @Inject
     lateinit var userController: UserController
 
-    suspend fun getAccessToken(code: String) =
-        withContext(ioDispatcher) {
-            val result = requestAccessTokenUseCase(code)
-            userController.updateUserLoginState(result.isSuccess)
-        }
+    fun getAccessToken(code: String) = viewModelScope.launch(ioDispatcher) {
+        val result = requestAccessTokenUseCase(code)
+        updateUserLoginState(result.isSuccess)
+    }
+
+    private fun updateUserLoginState(isLogin: Boolean) {
+        userController.updateUserLoginState(isLogin)
+    }
 
     fun logOut() {
         userController.updateUserLoginState(false)

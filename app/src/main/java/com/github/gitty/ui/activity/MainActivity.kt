@@ -2,7 +2,6 @@ package com.github.gitty.ui.activity
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
@@ -21,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import com.github.gitty.BuildConfig
 import com.github.gitty.R
 import com.github.gitty.databinding.ActivityMainBinding
@@ -30,8 +28,6 @@ import com.github.gitty.ui.search.ItemList
 import com.github.gitty.ui.search.SearchView
 import com.github.gitty.ui.search.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
@@ -39,7 +35,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override val viewModel: SearchViewModel by viewModels()
 
     private val mainViewModel by viewModels<MainViewModel>()
-
 
     @OptIn(ExperimentalLifecycleComposeApi::class)
     override fun initLayout() {
@@ -76,9 +71,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         intent?.data?.getQueryParameter("code")?.let {
-            lifecycleScope.launch {
-                mainViewModel.getAccessToken(it)
-            }
+            mainViewModel.getAccessToken(it)
         }
     }
 }
@@ -91,7 +84,6 @@ fun MainScreen(
     onLogInOutClick: () -> Unit
 ) {
     val isLoginUser by mainViewModel.userController.userLoginState.collectAsStateWithLifecycle()
-    Log.d("isLoginUser :: ", "$isLoginUser")
     Column {
         TopAppBar(isLoginUser, onLogInOutClick)
         SearchView(viewModel)
