@@ -1,7 +1,11 @@
 package com.github.gitty.di
 
+import com.github.gitty.domain.UserController
+import com.github.gitty.domain.UserControllerImpl
+import com.github.gitty.domain.repository.AccessRepository
 import com.github.gitty.domain.repository.GitRepositoryRepo
 import com.github.gitty.domain.usecase.GetRepositoriesUseCase
+import com.github.gitty.domain.usecase.RequestAccessTokenUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,4 +23,14 @@ class UseCaseModule {
         repo: GitRepositoryRepo,
         @IoDispatcher dispatcher: CoroutineDispatcher
     ) = GetRepositoriesUseCase(repo, dispatcher)
+
+    @Provides
+    @Singleton
+    fun provideRequestAccessTokenUseCase(
+        accessRepository: AccessRepository
+    ) = RequestAccessTokenUseCase(accessRepository = accessRepository)
+
+    @Provides
+    @Singleton
+    fun provideUserController(): UserController = UserControllerImpl()
 }

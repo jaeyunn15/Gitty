@@ -15,7 +15,7 @@ object DataSourceModule {
 
     @Provides
     @Singleton
-    fun provideRepositoryDataSource(service: GithubService): RepositoryDataSource {
+    fun provideRepositoryDataSource(@NetworkModule.typeApi service: GithubService): RepositoryDataSource {
         return RepositoryDataSourceImpl(service)
     }
 

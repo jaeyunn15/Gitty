@@ -1,7 +1,10 @@
 package com.github.gitty.di
 
 import com.github.gitty.data.datasource.RepositoryDataSource
+import com.github.gitty.data.repository.AccessRepositoryImpl
 import com.github.gitty.data.repository.GitRepositoryRepoImpl
+import com.github.gitty.data.service.AccessService
+import com.github.gitty.domain.repository.AccessRepository
 import com.github.gitty.domain.repository.GitRepositoryRepo
 import dagger.Module
 import dagger.Provides
@@ -20,6 +23,16 @@ object RepositoryModule {
     ): GitRepositoryRepo {
         return GitRepositoryRepoImpl(
             repositoryDataSource = repositoryDataSource
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideAccessRepository (
+        @NetworkModule.typeAccess accessService: AccessService,
+    ): AccessRepository {
+        return AccessRepositoryImpl(
+            accessService
         )
     }
 

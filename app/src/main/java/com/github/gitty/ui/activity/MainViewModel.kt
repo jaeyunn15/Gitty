@@ -1,29 +1,33 @@
 package com.github.gitty.ui.activity
 
-import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.github.gitty.di.IoDispatcher
-import com.github.gitty.domain.usecase.GetRepositoriesUseCase
+import com.github.gitty.domain.UserController
+import com.github.gitty.domain.UserControllerImpl
+import com.github.gitty.domain.usecase.RequestAccessTokenUseCase
 import com.github.gitty.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val getRepositoriesUseCase: GetRepositoriesUseCase
+    private val requestAccessTokenUseCase: RequestAccessTokenUseCase
 ): BaseViewModel() {
 
-    fun getSearchRepository() {
-        getRepositoriesUseCase("kotlin").onEach {
+    @Inject
+    lateinit var userController: UserController
 
-        }.flowOn(ioDispatcher).launchIn(viewModelScope)
+    suspend fun getAccessToken(code: String) =
+        withContext(ioDispatcher) {
+            val result = requestAccessTokenUseCase(code)
+            userController.updateUserLoginState(result.isSuccess)
+        }
+
+    fun logOut() {
+        userController.updateUserLoginState(false)
     }
 }

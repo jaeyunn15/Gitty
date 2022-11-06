@@ -1,6 +1,7 @@
 package com.github.gitty.di
 
 import com.github.gitty.BuildConfig
+import com.github.gitty.data.service.AccessService
 import com.github.gitty.data.service.GithubService
 import dagger.Module
 import dagger.Provides
@@ -11,6 +12,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -18,10 +20,39 @@ import javax.inject.Singleton
 object NetworkModule {
 
     val BASE_URL = "https://api.github.com/"
+    val GIT_BASE_URL = "https://github.com/"
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class typeAccess
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class typeApi
 
     @Singleton
     @Provides
+    @typeApi
     fun provideHttpClient(): OkHttpClient {
+        val interceptor = HttpLoggingInterceptor()
+        if (BuildConfig.DEBUG){
+            interceptor.level = HttpLoggingInterceptor.Level.BODY
+        }else{
+            interceptor.level = HttpLoggingInterceptor.Level.NONE
+        }
+
+        return OkHttpClient
+            .Builder()
+            .readTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .addNetworkInterceptor(interceptor)
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    @typeAccess
+    fun provideAccessHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
         if (BuildConfig.DEBUG){
             interceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -43,8 +74,9 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(
-        okHttpClient: OkHttpClient,
+    @typeApi
+    fun provideApiRetrofit(
+        @typeApi okHttpClient: OkHttpClient,
         gsonConverterFactory: GsonConverterFactory
     ): Retrofit {
         return Retrofit.Builder()
@@ -56,5 +88,22 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideGithubService(retrofit: Retrofit): GithubService = retrofit.create(GithubService::class.java)
+    @typeAccess
+    fun provideAccessRetrofit(@typeAccess okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(GIT_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    @typeApi
+    fun provideGithubService(@typeApi retrofit: Retrofit): GithubService = retrofit.create(GithubService::class.java)
+
+    @Singleton
+    @Provides
+    @typeAccess
+    fun provideAccessService(@typeAccess retrofit: Retrofit): AccessService = retrofit.create(AccessService::class.java)
 }
