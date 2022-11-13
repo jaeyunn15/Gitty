@@ -1,6 +1,7 @@
 package com.github.gitty.data.service
 
 import com.github.gitty.data.model.RepositorySearchResponse
+import com.github.gitty.data.model.UserInfoResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -14,4 +15,6 @@ interface GithubService {
         @Query("per_page") perSize: Int = 30
     ): RepositorySearchResponse
 
+    @GET("/user")
+    suspend fun getUserInfo(): UserInfoResponse
 }

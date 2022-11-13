@@ -1,4 +1,4 @@
-package com.github.gitty.data.datasource
+package com.github.gitty.data.datasource.remote.repository
 
 import com.github.gitty.data.model.RepositoryResponse
 

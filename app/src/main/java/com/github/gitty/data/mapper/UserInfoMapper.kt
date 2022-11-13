@@ -10,7 +10,15 @@ object UserInfoMapper: EntityMapper<UserInfoResponse, UserInfoItem> {
             id = model.id,
             userId = model.userId,
             url = model.url,
-            imgUrl = model.imgUrl
+            imgUrl = model.imgUrl,
+            company = model.company,
+            blog = model.blog,
+            localization = model.localization,
+            followers = model.followers,
+            following = model.following,
+            name = model.name,
+            email = model.email,
+            bio = model.email
         )
     }
 }

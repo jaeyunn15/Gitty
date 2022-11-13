@@ -1,13 +1,19 @@
 package com.github.gitty.di
 
+import android.util.Log
 import com.github.gitty.BuildConfig
+import com.github.gitty.data.datasource.local.LocalDataSource
 import com.github.gitty.data.service.AccessService
 import com.github.gitty.data.service.GithubService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Headers
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.internal.addHeaderLenient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -33,7 +39,9 @@ object NetworkModule {
     @Singleton
     @Provides
     @typeApi
-    fun provideHttpClient(): OkHttpClient {
+    fun provideHttpClient(
+        localDataSource: LocalDataSource
+    ): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
         if (BuildConfig.DEBUG){
             interceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -41,11 +49,14 @@ object NetworkModule {
             interceptor.level = HttpLoggingInterceptor.Level.NONE
         }
 
+        val userToken = localDataSource.getToken()
+
         return OkHttpClient
             .Builder()
+            .addInterceptor(OAuthInterceptor("Bearer", userToken))
+            .addInterceptor(interceptor)
             .readTimeout(15, TimeUnit.SECONDS)
             .connectTimeout(15, TimeUnit.SECONDS)
-            .addNetworkInterceptor(interceptor)
             .build()
     }
 
@@ -55,16 +66,16 @@ object NetworkModule {
     fun provideAccessHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
         if (BuildConfig.DEBUG){
-            interceptor.level = HttpLoggingInterceptor.Level.BODY
+            interceptor.level = HttpLoggingInterceptor.Level.BASIC
         }else{
             interceptor.level = HttpLoggingInterceptor.Level.NONE
         }
 
         return OkHttpClient
             .Builder()
+            .addInterceptor(interceptor)
             .readTimeout(15, TimeUnit.SECONDS)
             .connectTimeout(15, TimeUnit.SECONDS)
-            .addNetworkInterceptor(interceptor)
             .build()
     }
 

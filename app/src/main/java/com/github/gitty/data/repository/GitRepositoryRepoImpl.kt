@@ -1,6 +1,6 @@
 package com.github.gitty.data.repository
 
-import com.github.gitty.data.datasource.RepositoryDataSource
+import com.github.gitty.data.datasource.remote.repository.RepositoryDataSource
 import com.github.gitty.data.mapper.RepositoryMapper
 import com.github.gitty.di.NetworkModule
 import com.github.gitty.domain.entity.RepositoryItem

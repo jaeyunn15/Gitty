@@ -35,6 +35,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override val viewModel: SearchViewModel by viewModels()
 
     private val mainViewModel by viewModels<MainViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
 
     @OptIn(ExperimentalLifecycleComposeApi::class)
     override fun initLayout() {
@@ -42,7 +43,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             val isLoginUser by mainViewModel.userController.userLoginState.collectAsStateWithLifecycle()
             MainScreen(
                 viewModel = viewModel,
-                mainViewModel = mainViewModel
+                mainViewModel = mainViewModel,
+                userViewModel = userViewModel
             ) {
                 if (isLoginUser) {
                     logout()
@@ -81,6 +83,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 fun MainScreen(
     viewModel: SearchViewModel,
     mainViewModel: MainViewModel,
+    userViewModel: UserViewModel,
     onLogInOutClick: () -> Unit
 ) {
     val isLoginUser by mainViewModel.userController.userLoginState.collectAsStateWithLifecycle()
