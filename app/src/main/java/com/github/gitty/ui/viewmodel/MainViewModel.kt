@@ -1,4 +1,4 @@
-package com.github.gitty.ui.activity
+package com.github.gitty.ui.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.github.gitty.di.IoDispatcher
@@ -8,6 +8,9 @@ import com.github.gitty.domain.user.UserController
 import com.github.gitty.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,9 +24,13 @@ class MainViewModel @Inject constructor(
     @Inject
     lateinit var userController: UserController
 
+    private val _loginState = MutableStateFlow(false)
+    val loginState: StateFlow<Boolean> get() = _loginState
+
     fun getAccessToken(code: String) = viewModelScope.launch(ioDispatcher) {
         val result = requestAccessTokenUseCase(code)
         updateUserLoginState(result.isSuccess)
+        _loginState.update { result.isSuccess }
     }
 
     private fun updateUserLoginState(isLogin: Boolean) {

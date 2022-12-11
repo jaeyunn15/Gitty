@@ -1,7 +1,6 @@
 package com.github.gitty.di
 
 import com.github.gitty.data.datasource.remote.repository.RepositoryDataSource
-import com.github.gitty.data.datasource.local.LocalDataSource
 import com.github.gitty.data.datasource.remote.user.UserDataSource
 import com.github.gitty.data.repository.AccessRepositoryImpl
 import com.github.gitty.data.repository.GitRepositoryRepoImpl
@@ -10,6 +9,7 @@ import com.github.gitty.data.service.AccessService
 import com.github.gitty.domain.repository.AccessRepository
 import com.github.gitty.domain.repository.GitRepositoryRepo
 import com.github.gitty.domain.repository.UserRepository
+import com.github.gitty.data.datasource.local.ITokenDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,11 +34,11 @@ object RepositoryModule {
     @Provides
     fun provideAccessRepository (
         @NetworkModule.typeAccess accessService: AccessService,
-        localDataSource: LocalDataSource
+        iTokenDataStore: ITokenDataStore
     ): AccessRepository {
         return AccessRepositoryImpl(
             accessService,
-            localDataSource
+            iTokenDataStore
         )
     }
 

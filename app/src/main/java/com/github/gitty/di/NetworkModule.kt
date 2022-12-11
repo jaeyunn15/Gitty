@@ -1,19 +1,14 @@
 package com.github.gitty.di
 
-import android.util.Log
 import com.github.gitty.BuildConfig
-import com.github.gitty.data.datasource.local.LocalDataSource
 import com.github.gitty.data.service.AccessService
 import com.github.gitty.data.service.GithubService
+import com.github.gitty.data.datasource.local.ITokenDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Headers
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.internal.addHeaderLenient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -40,7 +35,7 @@ object NetworkModule {
     @Provides
     @typeApi
     fun provideHttpClient(
-        localDataSource: LocalDataSource
+        iTokenDataStore: ITokenDataStore
     ): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
         if (BuildConfig.DEBUG){
@@ -49,7 +44,7 @@ object NetworkModule {
             interceptor.level = HttpLoggingInterceptor.Level.NONE
         }
 
-        val userToken = localDataSource.getToken()
+        val userToken = iTokenDataStore.getToken()
 
         return OkHttpClient
             .Builder()

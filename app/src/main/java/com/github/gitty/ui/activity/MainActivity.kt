@@ -27,6 +27,8 @@ import com.github.gitty.ui.base.BaseActivity
 import com.github.gitty.ui.search.ItemList
 import com.github.gitty.ui.search.SearchView
 import com.github.gitty.ui.search.SearchViewModel
+import com.github.gitty.ui.viewmodel.MainViewModel
+import com.github.gitty.ui.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

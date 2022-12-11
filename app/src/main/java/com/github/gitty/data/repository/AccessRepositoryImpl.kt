@@ -1,15 +1,15 @@
 package com.github.gitty.data.repository
 
-import com.github.gitty.data.datasource.local.LocalDataSource
 import com.github.gitty.data.service.AccessService
 import com.github.gitty.di.NetworkModule
 import com.github.gitty.domain.entity.GetTokenState
 import com.github.gitty.domain.repository.AccessRepository
+import com.github.gitty.data.datasource.local.ITokenDataStore
 import javax.inject.Inject
 
 class AccessRepositoryImpl @Inject constructor(
     @NetworkModule.typeAccess private val accessService: AccessService,
-    private val localDataSource: LocalDataSource
+    private val iTokenDataStore: ITokenDataStore
 ): AccessRepository {
 
     override suspend fun getAccessToken(
@@ -21,7 +21,7 @@ class AccessRepositoryImpl @Inject constructor(
         return if (result.isSuccessful) {
             val accessToken = result.body()?.access_token
             if (!accessToken.isNullOrEmpty()) {
-                localDataSource.saveToken(accessToken)
+                iTokenDataStore.setToken(accessToken)
                 GetTokenState(true, accessToken)
             } else {
                 GetTokenState(false)
