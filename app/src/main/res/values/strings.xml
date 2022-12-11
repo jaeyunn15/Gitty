@@ -12,6 +12,6 @@
     <string name="title_activity_start">StartActivity</string>
 
     <string name="repos">Repository</string>
-    <string name="users">User</string>
+    <string name="users">Profile</string>
     <string name="liked">Liked</string>
 </resources>

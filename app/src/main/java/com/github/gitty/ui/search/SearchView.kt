@@ -67,10 +67,10 @@ fun SearchView(
 fun ItemList(
     viewModel: SearchViewModel
 ) {
-    val uiState = viewModel.uiState
-    val isLoading = uiState.isSearchLoading
-    ShowSearchProgress(isLoadingData = isLoading)
-    SearchScreenContent(uiState.repositoryList)
+//    val uiState = viewModel.uiState
+//    val isLoading = uiState.isSearchLoading
+//    ShowSearchProgress(isLoadingData = isLoading)
+//    SearchScreenContent(uiState.repositoryList)
 }
 
 @Composable

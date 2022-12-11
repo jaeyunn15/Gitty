@@ -18,7 +18,7 @@ object UserInfoMapper: EntityMapper<UserInfoResponse, UserInfoItem> {
             following = model.following,
             name = model.name,
             email = model.email,
-            bio = model.email
+            bio = model.bio
         )
     }
 }

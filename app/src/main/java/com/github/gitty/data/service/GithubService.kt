@@ -1,8 +1,10 @@
 package com.github.gitty.data.service
 
+import com.github.gitty.data.model.RepositoryResponse
 import com.github.gitty.data.model.RepositorySearchResponse
 import com.github.gitty.data.model.UserInfoResponse
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface GithubService {
@@ -17,4 +19,9 @@ interface GithubService {
 
     @GET("/user")
     suspend fun getUserInfo(): UserInfoResponse
+
+    @GET("/users/{userId}/repos")
+    suspend fun getUserRepositories(
+        @Path("userId") userId: String
+    ): List<RepositoryResponse>
 }

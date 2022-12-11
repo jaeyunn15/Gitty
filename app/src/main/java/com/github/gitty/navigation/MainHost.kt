@@ -3,7 +3,7 @@ package com.github.gitty.navigation
 import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,10 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.github.gitty.R
+import com.github.gitty.ui.repository.RepositoryView
+import com.github.gitty.ui.search.SearchViewModel
+import com.github.gitty.ui.user.UserInfoScreen
+import com.github.gitty.ui.viewmodel.UserViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -46,13 +54,14 @@ fun BottomNavigationScreens(
     val screens = remember {
         listOf(
             BottomNavigationScreens.Repos,
-            BottomNavigationScreens.Users,
-            BottomNavigationScreens.Liked,
+            BottomNavigationScreens.PROFILE
         )
     }
 
     BottomNavigation(
-        elevation = 5.dp
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp),
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
@@ -61,10 +70,13 @@ fun BottomNavigationScreens(
                 icon = {
                     Icon(
                         painter = painterResource(id = screen.icon),
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(36.dp)
+                            .height(36.dp)
                     )
                 },
-                label = { Text(stringResource(screen.resourceId)) },
+                label = { Text(stringResource(screen.resourceId), fontSize = 15.sp) },
                 selected = currentRoute == screen.route,
                 onClick = {
                     navController.popBackStack(navController.graph.startDestinationId, false)
@@ -85,7 +97,9 @@ fun BottomNavigationScreens(
 @Composable
 fun MainBody(
     mainNavController: NavController,
-    navController: NavController
+    navController: NavController,
+    searchViewModel: SearchViewModel = hiltViewModel(),
+    userViewModel: UserViewModel = hiltViewModel()
 ) {
     val mainNav = remember { mainNavController as NavHostController }
 
@@ -96,23 +110,23 @@ fun MainBody(
         composable(
             route = BottomNavigationScreens.Repos.route
         ) {
-            Text(text = "this is Repository !!", Modifier.clickable {
-                mainNav.navigate(Screen.Search.route) {
-                    popUpTo(navController.graph.startDestinationId)
-                }
-            })
+            Box(modifier = Modifier.fillMaxWidth()) {
+                RepositoryView(
+                    mainNavController = mainNavController,
+                    navController = navController,
+                    searchViewModel = searchViewModel
+                )
+            }
         }
 
         composable(
-            route = BottomNavigationScreens.Users.route
+            route = BottomNavigationScreens.PROFILE.route
         ) {
-            Text(text = "this is Users !!")
-        }
-
-        composable(
-            route = BottomNavigationScreens.Liked.route
-        ) {
-            Text(text = "this is Liked !!")
+            UserInfoScreen(
+                mainNavController = mainNav,
+                navController = navController,
+                userViewModel = userViewModel
+            )
         }
     }
 }
@@ -129,15 +143,10 @@ sealed class BottomNavigationScreens(
         R.drawable.ic_launcher_foreground
     )
 
-    object Users : BottomNavigationScreens(
-        "USER_ROUTE",
+    object PROFILE : BottomNavigationScreens(
+        "PROFILE_ROUTE",
         R.string.users,
         R.drawable.ic_launcher_foreground
     )
 
-    object Liked : BottomNavigationScreens(
-        "LIKED_ROUTE",
-        R.string.liked,
-        R.drawable.ic_launcher_foreground
-    )
 }

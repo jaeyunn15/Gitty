@@ -2,8 +2,10 @@ package com.github.gitty.ui.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.github.gitty.di.IoDispatcher
+import com.github.gitty.domain.entity.RepositoryItem
 import com.github.gitty.domain.entity.UserInfoItem
 import com.github.gitty.domain.usecase.GetUserInfoUseCase
+import com.github.gitty.domain.usecase.GetUserRepositoriesUseCase
 import com.github.gitty.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -12,27 +14,36 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val getUserInfoUseCase: GetUserInfoUseCase
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val getUserRepositoriesUseCase: GetUserRepositoriesUseCase
 ): BaseViewModel() {
 
-    private val _userInfoState = MutableStateFlow<UserInfoState>(UserInfoState(false, null))
+    private val _userInfoState = MutableStateFlow(UserInfoState(false, null, null))
     val userInfoState: StateFlow<UserInfoState> get() = _userInfoState
 
-    fun getUserInfo() {
+    fun getUserInfo() = viewModelScope.launch {
         _userInfoState.update { it.copy(isLoading = true) }
-        getUserInfoUseCase().onEach { item ->
-            _userInfoState.update {
-                it.copy(
-                    isLoading = false,
-                    userInfo = item
-                )
+        try {
+            val userInfoResult = getUserInfoUseCase()
+            _userInfoState.update { it.copy(userInfo = userInfoResult) }
+            if (!userInfoResult.userId.isNullOrEmpty()) {
+                val userRepositories = getUserRepositoriesUseCase(userInfoResult.userId)
+                _userInfoState.update {
+                    it.copy(
+                        isLoading = false,
+                        userRepositories = userRepositories
+                    )
+                }
             }
-        }.flowOn(ioDispatcher).launchIn(viewModelScope)
+        } catch (e: Exception) {
+            //global error handling
+        }
     }
+
 
     data class UserInfoState (
         val isLoading: Boolean = false,
-        val userInfo: UserInfoItem?
+        val userInfo: UserInfoItem?,
+        val userRepositories: List<RepositoryItem>?
     )
 }

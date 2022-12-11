@@ -1,8 +1,5 @@
 package com.github.gitty.ui.search
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.github.gitty.di.IoDispatcher
 import com.github.gitty.domain.entity.RepositoryItem
@@ -21,17 +18,17 @@ class SearchViewModel @Inject constructor(
     private val getRepositoriesUseCase: GetRepositoriesUseCase
 ) : BaseViewModel() {
 
-    var uiState by mutableStateOf(SearchViewState())
-        private set
+    var uiState = MutableStateFlow<SearchViewState>(SearchViewState())
 
     private val _searchQuery = MutableStateFlow("")
 
-    init {
-        performQuery()
-    }
-
     fun updateQuery(query: String) {
         _searchQuery.update { query }
+    }
+
+    init {
+        performQuery()
+        updateQuery("android")
     }
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
@@ -40,17 +37,21 @@ class SearchViewModel @Inject constructor(
             .debounce(300)
             .flatMapLatest { query ->
                 if (query.isNotEmpty()) {
-                    uiState = SearchViewState(isSearchLoading = true)
+                    uiState.update {
+                        it.copy(isSearchLoading = true)
+                    }
                     getRepositoriesUseCase(query)
                 } else {
                     flow { emit(emptyList()) }
                 }
             }
             .onEach { result ->
-                uiState = uiState.copy(
-                    repositoryList = result,
-                    isSearchLoading = false
-                )
+                uiState.update {
+                    it.copy(
+                        repositoryList = result,
+                        isSearchLoading = false
+                    )
+                }
             }
             .flowOn(ioDispatcher)
             .launchIn(viewModelScope)

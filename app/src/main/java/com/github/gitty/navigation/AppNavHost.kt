@@ -1,8 +1,10 @@
 package com.github.gitty.navigation
 
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -40,7 +42,7 @@ fun AppNavHost(
         }
 
         composable(route = Screen.Search.route) {
-            Text(text = "this is search" )
+            Text(text = "this is search", color = MaterialTheme.colors.primary)
         }
 
     }
